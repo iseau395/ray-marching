@@ -17,9 +17,16 @@ const WIDTH: f32 = 800.0;
 const HEIGHT: f32 = 600.0;
 
 async fn run(event_loop: EventLoop<()>, window: Window) {
-    window.set_cursor_grab(winit::window::CursorGrabMode::Confined).unwrap();
+    window
+        .set_cursor_grab(winit::window::CursorGrabMode::Confined)
+        .unwrap();
     window.set_cursor_visible(false);
-    window.set_cursor_position(LogicalPosition { x: WIDTH / 2.0, y: HEIGHT / 2.0 } ).unwrap();
+    window
+        .set_cursor_position(LogicalPosition {
+            x: WIDTH / 2.0,
+            y: HEIGHT / 2.0,
+        })
+        .unwrap();
 
     let instance = wgpu::Instance::new(wgpu::Backends::PRIMARY);
     let surface = unsafe { instance.create_surface(&window) };
@@ -232,52 +239,96 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
 
         if tick % 100 == 0 {
             tick = 1;
-            
+
             if !(current_time - last_time).is_zero() {
                 // println!("{}", 1.0 / delta_time);
             }
-            
         }
         tick += 1;
-        
+
         last_time = current_time;
 
         // TODO: this may be excessive polling. It really should be synchronized with
         // swapchain presentation, but that's currently underbaked in wgpu.
         *control_flow = ControlFlow::Poll;
         match event {
-            Event::DeviceEvent { event: DeviceEvent::Key(KeyboardInput{ virtual_keycode: Some(VirtualKeyCode::Escape), state: ElementState::Pressed, .. }), .. } => *control_flow = ControlFlow::Exit,
-            Event::DeviceEvent { event: DeviceEvent::Key(KeyboardInput{ virtual_keycode, state, .. }), .. } => {
-                match virtual_keycode.unwrap() {
-                    VirtualKeyCode::W => {
-                        w_pressed = if state == ElementState::Pressed { true } else { false };
+            Event::DeviceEvent {
+                event:
+                    DeviceEvent::Key(KeyboardInput {
+                        virtual_keycode: Some(VirtualKeyCode::Escape),
+                        state: ElementState::Pressed,
+                        ..
+                    }),
+                ..
+            } => *control_flow = ControlFlow::Exit,
+            Event::DeviceEvent {
+                event:
+                    DeviceEvent::Key(KeyboardInput {
+                        virtual_keycode,
+                        state,
+                        ..
+                    }),
+                ..
+            } => {
+                if virtual_keycode.is_some() {
+                    match virtual_keycode.unwrap() {
+                        VirtualKeyCode::W => {
+                            w_pressed = if state == ElementState::Pressed {
+                                true
+                            } else {
+                                false
+                            };
+                        }
+                        VirtualKeyCode::A => {
+                            a_pressed = if state == ElementState::Pressed {
+                                true
+                            } else {
+                                false
+                            };
+                        }
+                        VirtualKeyCode::S => {
+                            s_pressed = if state == ElementState::Pressed {
+                                true
+                            } else {
+                                false
+                            };
+                        }
+                        VirtualKeyCode::D => {
+                            d_pressed = if state == ElementState::Pressed {
+                                true
+                            } else {
+                                false
+                            };
+                        }
+                        VirtualKeyCode::Space => {
+                            space_pressed = if state == ElementState::Pressed {
+                                true
+                            } else {
+                                false
+                            };
+                        }
+                        VirtualKeyCode::LShift => {
+                            shift_pressed = if state == ElementState::Pressed {
+                                true
+                            } else {
+                                false
+                            };
+                        }
+                        VirtualKeyCode::LControl => {
+                            if state == ElementState::Pressed {
+                                speed = 40.0;
+                            } else {
+                                speed = 5.0;
+                            }
+                        }
+                        _ => {}
                     }
-                    VirtualKeyCode::A => {
-                        a_pressed = if state == ElementState::Pressed { true } else { false };
-                    }
-                    VirtualKeyCode::S => {
-                        s_pressed = if state == ElementState::Pressed { true } else { false };
-                    }
-                    VirtualKeyCode::D => {
-                        d_pressed = if state == ElementState::Pressed { true } else { false };
-                    }
-                    VirtualKeyCode::Space => {
-                        space_pressed = if state == ElementState::Pressed { true } else { false };
-                    }
-                    VirtualKeyCode::LShift => {
-                        shift_pressed = if state == ElementState::Pressed { true } else { false };
-                    }
-                    VirtualKeyCode::LControl => {
-                        if state == ElementState::Pressed {
-                            speed = 40.0;
-                        } else {
-                            speed = 5.0;
-                        } 
-                    }
-                    _ => {}
                 }
             }
-            Event::DeviceEvent { event: DeviceEvent::MouseMotion { delta }, .. } => {
+            Event::DeviceEvent {
+                event: DeviceEvent::MouseMotion { delta },
+                ..
+            } => {
                 y_rot += delta.0 as f32 * mouse_speed;
                 x_rot += delta.1 as f32 * mouse_speed;
             }
@@ -287,7 +338,16 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
                     .expect("error getting texture from swap chain");
 
                 let i_time: f32 = 0.5 + start_time.elapsed().as_micros() as f32 * 1e-6;
-                let config_data = [size.width, size.height, i_time.to_bits(), x_pos.to_bits(), y_pos.to_bits(), z_pos.to_bits(), y_rot.to_bits(), x_rot.to_bits()];
+                let config_data = [
+                    size.width,
+                    size.height,
+                    i_time.to_bits(),
+                    x_pos.to_bits(),
+                    y_pos.to_bits(),
+                    z_pos.to_bits(),
+                    y_rot.to_bits(),
+                    x_rot.to_bits(),
+                ];
 
                 let config_host = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
                     label: None,
@@ -368,6 +428,9 @@ fn main() {
     let window = Window::new(&event_loop).unwrap();
     window.set_resizable(false);
 
-    window.set_inner_size(LogicalSize { width: WIDTH, height: HEIGHT });
+    window.set_inner_size(LogicalSize {
+        width: WIDTH,
+        height: HEIGHT,
+    });
     pollster::block_on(run(event_loop, window));
 }
