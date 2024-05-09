@@ -109,6 +109,10 @@ fn map(pos: vec3<f32>) -> SDFOutput
     let floor = sdfFloor(pos);
     // let sphere = sphere(pos, vec3<f32>(cos(params.iTime), sin(params.iTime), 3.0), 1.0);
     let sphere = sphere(vec3<f32>(pos.x % 10.0, pos.y, pos.z % 10.0), vec3<f32>(5.0, 5.0, 5.0), 1.0);
+    // let donut = SDFOutput(
+    //     sdTorus(pos, vec2<f32>(3.0, 1.0)),
+    //     vec4<f32>(0.0, 0.0, 1.0, 0.0)
+    // );
 
     return min_sdf(floor, sphere);
 }

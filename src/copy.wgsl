@@ -50,6 +50,6 @@ fn anti_alising(tex_coord: vec2<f32>) -> vec4<f32>
 
 @fragment
 fn fs_main(in: VertexOutput) -> @location(0) vec4<f32> {
-    // return anti_alising(in.tex_coord);
-    return textureSample(r_color, r_sampler, in.tex_coord);
+    return anti_alising(in.tex_coord);
+    // return textureSample(r_color, r_sampler, in.tex_coord);
 }
