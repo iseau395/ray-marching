@@ -6,8 +6,9 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-wgpu = { version = "0.14"}
+wgpu = { version = "0.14" }
 winit = "0.27.3"
+winapi = { version = "0.3.9", features = ["winbase"] }
 pollster = "0.2.5"
 async-executor = "1.4.1"
 bytemuck = "1.12.1"
