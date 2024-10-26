@@ -2,7 +2,7 @@
 
 ![a lot of green spheres](https://github.com/iseau395/ray-marching/blob/main/screenshot.png?raw=true)
 ![a blue torus with a shadow](https://github.com/iseau395/ray-marching/blob/main/screenshot2.png?raw=true)
-![a lot of blue toruses, all with shadows](https://github.com/iseau395/ray-marching/blob/main/screenshot2.png?raw=true)
+![a lot of blue toruses, all with shadows](https://github.com/iseau395/ray-marching/blob/main/screenshot3.png?raw=true)
 
 A super simple realtime ray marching rendering engine using wgpu in rust
 
