@@ -108,16 +108,16 @@ fn sdfFloor(pos: vec3<f32>) -> SDFOutput
 
 fn sdf(pos: vec3<f32>) -> SDFOutput
 {
-    let floor = sdfFloor(pos);
+    let floor_sdf = sdfFloor(pos);
     // let sphere = sphere(pos, vec3<f32>(2.0 * cos(params.iTime), 2.0 * sin(params.iTime), 0.0), 2.0);
     // let sphere = sphere(vec3<f32>(pos.x % 10.0, pos.y % 10.0, pos.z), vec3<f32>(5.0, 5.0, 5.0), 1.0);
     let donut = SDFOutput(
-        sdTorus(pos, vec2<f32>(3.0, 1.0)),
+        sdTorus(vec3<f32>(abs(pos.x) % 10.0 - 5.0, pos.y, abs(pos.z) % 10.0 - 5.0), vec2<f32>(3.0, 1.0)),
         vec4<f32>(0.0, 0.0, 1.0, 0.0),
         vec3<f32>(0.0, 0.0, 0.0) // Normal should be set later
     );
 
-    return min_sdf(floor, donut);
+    return min_sdf(floor_sdf, donut);
 }
 
 fn get_normal(pos: vec3<f32>) -> vec3<f32>
@@ -155,14 +155,14 @@ fn lerp(a: vec4<f32>, b: vec4<f32>, t: f32) -> vec4<f32>
     return a + (b - a) * t;
 }
 
-fn raymarch(initial_position: vec3<f32>, direction: vec3<f32>, max_steps: i32, max_distance: f32) -> RaymarchOutput
+fn raymarch(initial_position: vec3<f32>, direction: vec3<f32>, max_steps: i32, max_distance: f32, threshold_param: f32) -> RaymarchOutput
 {
     let epsilon = 0.001;
-    let threshold = 0.001;
+    // let threshold = 0.001;
 
     var steps = 0;
     var total_distance = 0.0;
-    var min_distance = 999999999.0; // arbitrarally large number
+    var min_distance = 999999999.0; // arbitrarily large number
     var last_distance = -1.0;
     var left_threshold = false;
 
@@ -181,6 +181,11 @@ fn raymarch(initial_position: vec3<f32>, direction: vec3<f32>, max_steps: i32, m
             last_distance = epsilon;
             steps += 1;
             continue;
+        }
+        
+        var threshold = threshold_param;
+        if (threshold == -1.0) {
+            threshold = min(max(((1.0 / f32(params.height)) / 0.5) * total_distance, 0.001), 1.0);
         }
 
         if ((sdf_output.distance < threshold && sdf_output.distance >= -epsilon && left_threshold) || (!left_threshold && (last_distance - sdf_output.distance) > 0.0)) {
@@ -265,16 +270,17 @@ fn main(@builtin(global_invocation_id) global_ix: vec3<u32>) {
         let bg_color = vec4<f32>(0.1, 0.5, 0.9, 0.0);
         let light_direction = normalize(vec3<f32>(20.0, 40.0, 20.0));
 
-        let march_output = raymarch(camera_position, direction, 500, 5000.0);
+        let march_output = raymarch(camera_position, direction, 150, 5000.0, -1.0);
         var color = bg_color;
 
         if (march_output.collided) {
-            color = lerp(march_output.color, bg_color, pow(total_distance / 5000.0, 2.0));
+            // color = lerp(march_output.color, bg_color, pow(total_distance / sqrt(1000.0), 2.0));
+            color = march_output.color;
             
             // let light_direction = normalize(light - march_output.end_position);
             let ambient = 0.1;
 
-            let shadow_march = raymarch(march_output.end_position, light_direction, 100, 1000.0);
+            let shadow_march = raymarch(march_output.end_position, light_direction, 50, 50.0, 0.001 * march_output.total_distance);
 
             if (shadow_march.collided) {
                 color *= (ambient);

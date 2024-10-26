@@ -13,8 +13,10 @@ use winit::{
     window::Window,
 };
 
-const WIDTH: f32 = 800.0;
-const HEIGHT: f32 = 600.0;
+// const WIDTH: f32 = 800.0;
+// const HEIGHT: f32 = 600.0;
+const WIDTH: f32 = 1080.0;
+const HEIGHT: f32 = 1090.0 * (9.0 / 16.0);
 
 async fn run(event_loop: EventLoop<()>, window: Window) {
     window
