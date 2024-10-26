@@ -270,7 +270,7 @@ fn main(@builtin(global_invocation_id) global_ix: vec3<u32>) {
         let bg_color = vec4<f32>(0.1, 0.5, 0.9, 0.0);
         let light_direction = normalize(vec3<f32>(20.0, 40.0, 20.0));
 
-        let march_output = raymarch(camera_position, direction, 150, 5000.0, -1.0);
+        let march_output = raymarch(camera_position, direction, 500, 10000.0, -1.0);
         var color = bg_color;
 
         if (march_output.collided) {
